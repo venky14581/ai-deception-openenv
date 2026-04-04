@@ -16,17 +16,32 @@ time.sleep(2)  # wait for server to start
 
 print("[START] task=ai-deception env=cyber-security model=baseline")
 
-easy_score = easy()
-print(f"[STEP] step=1 action=easy reward={easy_score:.2f} done=false error=null")
 
-medium_score = medium()
-print(f"[STEP] step=2 action=medium reward={medium_score:.2f} done=false error=null")
-
-hard_score = hard()
-print(f"[STEP] step=3 action=hard reward={hard_score:.2f} done=true error=null")
-
-print(f"[END] success=true steps=3 rewards={easy_score:.2f},{medium_score:.2f},{hard_score:.2f}")
-print(f"[END] success=true steps=3 rewards={easy_score:.2f},{medium_score:.2f},{hard_score:.2f}")
-
+# Run continuously for Hugging Face
 while True:
+
+    # Easy Task
+    easy_score = easy()
+    print(
+        f"[STEP] step=1 action=easy reward={easy_score:.2f} done=false error=null"
+    )
+
+    # Medium Task
+    medium_score = medium()
+    print(
+        f"[STEP] step=2 action=medium reward={medium_score:.2f} done=false error=null"
+    )
+
+    # Hard Task
+    hard_score = hard()
+    print(
+        f"[STEP] step=3 action=hard reward={hard_score:.2f} done=true error=null"
+    )
+
+    print(
+        f"[END] success=true steps=3 rewards={easy_score:.2f},{medium_score:.2f},{hard_score:.2f}"
+    )
+
+    # Wait before next attack cycle
     time.sleep(60)
+
