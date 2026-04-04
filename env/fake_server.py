@@ -43,7 +43,7 @@ def get_logs():
 
 
 def run_server():
-    app.run(port=5000)
+    app.run(port=7860)
 
 @app.route("/")
 def home():
