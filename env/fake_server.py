@@ -82,10 +82,6 @@ def backup():
     })
     return "Forbidden", 403
 
-@app.route("/")
-def home():
-    return "AI Cyber Deception Environment Running - Multi Attack Simulation Active"
-
 
 @app.route("/status")
 def status():
