@@ -78,9 +78,3 @@ def backup():
     })
     return "Forbidden", 403
 
-@app.route("/status")
-def status():
-    return {
-        "status": "running",
-        "attacks": "brute_force, port_scan, credential_stuffing"
-    }
