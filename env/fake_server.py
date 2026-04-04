@@ -41,9 +41,13 @@ def login():
 def get_logs():
     return jsonify(logs)
 
-
 def run_server():
-    app.run(host="0.0.0.0", port=7860)
+    app.run(
+        host="0.0.0.0",
+        port=7860,
+        debug=False,
+        use_reloader=False
+    )
 
 @app.route("/")
 def home():
