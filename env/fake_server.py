@@ -78,3 +78,19 @@ def backup():
     })
     return "Forbidden", 403
 
+@app.route("/")
+def home():
+    return "AI Cyber Deception Environment Running - Multi Attack Simulation Active"
+
+
+@app.route("/status")
+def status():
+    return {
+        "environment": "AI Cyber Deception",
+        "attacks": [
+            "brute_force",
+            "port_scan",
+            "credential_stuffing"
+        ],
+        "status": "running"
+    }
