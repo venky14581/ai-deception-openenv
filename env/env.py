@@ -1,7 +1,7 @@
 import requests
 from env.deception import deploy_honeypot, fake_database, block_attacker
 
-SERVER = "http://127.0.0.1:5000"
+SERVER = "http://127.0.0.1:7860"
 
 class DeceptionEnv:
 

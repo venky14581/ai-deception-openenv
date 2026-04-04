@@ -2,8 +2,7 @@ import requests
 import requests
 import time
 
-TARGET = "http://127.0.0.1:5000"
-
+TARGET = "http://127.0.0.1:7860"
 
 def brute_force():
 
