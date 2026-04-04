@@ -26,3 +26,7 @@ hard_score = hard()
 print(f"[STEP] step=3 action=hard reward={hard_score:.2f} done=true error=null")
 
 print(f"[END] success=true steps=3 rewards={easy_score:.2f},{medium_score:.2f},{hard_score:.2f}")
+print(f"[END] success=true steps=3 rewards={easy_score:.2f},{medium_score:.2f},{hard_score:.2f}")
+
+while True:
+    time.sleep(60)
