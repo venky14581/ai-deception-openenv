@@ -97,5 +97,21 @@ def status():
 RESULTS = {}
 
 @app.route("/results")
+
 def results():
     return RESULTS
+@app.route("/reset", methods=["POST"])
+
+def reset():
+    global logs
+    logs = {
+        "failed_logins": 0,
+        "suspicious_ips": [],
+        "requests": []
+    }
+    return {"status": "reset"}
+
+@app.route("/state")
+def state():
+    return logs
+
