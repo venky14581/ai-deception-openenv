@@ -1,3 +1,12 @@
+---
+title: AI Deception OpenEnv
+emoji: 🛡️
+colorFrom: blue
+colorTo: purple
+sdk: docker
+app_port: 7860
+pinned: false
+---
 # AI Cyber Deception OpenEnv
 
 ## Overview
