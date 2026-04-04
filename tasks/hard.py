@@ -1,9 +1,11 @@
 from env.env import DeceptionEnv
-from env.attacker import brute_force
+from env.attacker import brute_force, port_scan, credential_stuffing
 
 def run():
 
     brute_force()
+    port_scan()
+    credential_stuffing()
 
     env = DeceptionEnv()
 
