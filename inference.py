@@ -1,12 +1,10 @@
 import threading
 import time
-import sys
 
-from env.fake_server import run_server
+from env.fake_server import run_server, RESULTS
 from tasks.easy import run as easy
 from tasks.medium import run as medium
 from tasks.hard import run as hard
-
 
 # Start fake server in background
 server_thread = threading.Thread(target=run_server, daemon=True)
@@ -44,6 +42,16 @@ while True:
         f"[END] success=true steps=3 rewards={easy_score:.2f},{medium_score:.2f},{hard_score:.2f}",
         flush=True
     )
+
+    # Update results for judges
+    RESULTS["status"] = "completed"
+    RESULTS["steps"] = 3
+    RESULTS["rewards"] = [easy_score, medium_score, hard_score]
+    RESULTS["attacks"] = [
+        "brute_force",
+        "port_scan",
+        "credential_stuffing"
+    ]
 
     # wait before next attack cycle
     time.sleep(60)

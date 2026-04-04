@@ -94,3 +94,8 @@ def status():
         ],
         "status": "running"
     }
+RESULTS = {}
+
+@app.route("/results")
+def results():
+    return RESULTS
