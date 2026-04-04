@@ -1,0 +1,10 @@
+name: ai-deception-env
+description: AI Cyber Deception Environment
+version: 1.0
+
+tasks:
+  - easy
+  - medium
+  - hard
+
+entry_point: inference.py
