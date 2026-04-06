@@ -11,79 +11,105 @@ pinned: false
 
 ## Overview
 
-AI Cyber Deception OpenEnv is a real-world cybersecurity simulation environment where an AI agent learns to detect attackers and deploy deception strategies such as honeypots.
+This project implements a real-world AI Cyber Deception environment where an AI agent learns to detect and mitigate cyber attacks such as brute force, port scanning, and credential stuffing.
 
-## Features
+The environment follows the OpenEnv specification and supports step(), reset(), and state() APIs.
 
-- Fake server simulation
-- Attacker simulation
-- AI deception environment
-- Reward-based learning
-- Multiple difficulty tasks
+---
 
-## Tasks
+## Real-world Task
 
-### Easy
-Detect brute force attack
+Simulate cybersecurity defense in a production-like environment:
 
-### Medium
-Deploy honeypot
+- Detect brute force attacks
+- Detect port scanning
+- Deploy deception mechanisms
+- Block malicious IPs
 
-### Hard
-Full incident response (detect, deceive, block)
+---
 
-## Actions
+## Action Space
+
+The agent can perform:
 
 - detect_attack
 - deploy_honeypot
+- fake_database
 - block_ip
 
-## Reward System
+---
 
-- Detect attack → +0.5
-- Deploy honeypot → +0.3
-- Block attacker → +0.2
+## Observation Space
 
-## Project Structure
-ai_deception_env/
-├── env/
-├── tasks/
-├── inference.py
-├── openenv.yaml
-├── Dockerfile
+Environment returns:
 
+- failed_logins
+- port_scans
+- suspicious_ips
+- request logs
 
-## Run
+---
 
-### Local
+## Tasks
 
+### Easy Task
+Detect brute force attack
 
+### Medium Task
+Deploy honeypot after detecting attack
+
+### Hard Task
+Block malicious attacker
+
+---
+
+## Reward Function
+
+| Action | Reward |
+|--------|--------|
+| detect_attack | 0.4 |
+| deploy_honeypot | 0.2 |
+| block_ip | 0.3 |
+
+---
+
+## APIs
+
+- `/reset`
+- `/step`
+- `/state`
+- `/logs`
+- `/status`
+
+---
+
+## Setup
+
+### Run locally
+
+```bash
+pip install -r requirements.txt
 python inference.py
 
+Docker
+docker build -t ai-deception .
+docker run ai-deception
 
-### Docker
+Hugging Face Deployment
+https://bytecore1-ai-deception-openenv.hf.space/
+https://bytecore1-ai-deception-openenv.hf.space/state
+https://bytecore1-ai-deception-openenv.hf.space/status
+https://bytecore1-ai-deception-openenv.hf.space/logs
 
+Baseline Results
 
-docker build -t ai-deception-env .
-docker run ai-deception-env
-
-
-## Example Output
-
+Example:
 
 [START]
 [STEP]
 [STEP]
 [STEP]
 [END]
+Architecture
 
-
-## Requirements
-
-- Python 3.10
-- Flask
-- Requests
-
-## Author
-
-Bytecore team
+Attacker → Fake Server → AI Agent → Defense Actions → Reward

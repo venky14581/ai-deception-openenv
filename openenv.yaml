@@ -1,10 +1,27 @@
 name: ai-deception-env
 description: AI Cyber Deception Environment
-version: 1.0
 
 tasks:
-  - easy
-  - medium
-  - hard
+  - name: easy
+    description: Detect brute force attack
 
-entry_point: inference.py
+  - name: medium
+    description: Deploy honeypot
+
+  - name: hard
+    description: Block attacker
+
+entrypoint: inference.py
+
+actions:
+  - detect_attack
+  - deploy_honeypot
+  - fake_database
+  - block_ip
+
+observations:
+  - failed_logins
+  - port_scans
+  - suspicious_ips
+
+reward_range: [0.0, 1.0]
