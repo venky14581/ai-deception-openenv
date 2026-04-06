@@ -11,7 +11,8 @@ from env.env import DeceptionEnv
 from env.attacker import simulate_attack
 
 # Start server
-threading.Thread(target=run_server, daemon=True).start()
+server_thread = threading.Thread(target=run_server)
+server_thread.start()
 time.sleep(2)
 
 API_BASE_URL = os.getenv("API_BASE_URL", "https://router.huggingface.co/v1")
