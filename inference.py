@@ -10,10 +10,6 @@ from env.fake_server import run_server
 from env.env import DeceptionEnv
 from env.attacker import simulate_attack
 
-# Start server
-server_thread = threading.Thread(target=run_server)
-server_thread.start()
-time.sleep(2)
 
 API_BASE_URL = os.getenv("API_BASE_URL", "https://router.huggingface.co/v1")
 MODEL_NAME = os.getenv("MODEL_NAME", "Qwen/Qwen2.5-7B-Instruct")

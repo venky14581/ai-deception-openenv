@@ -172,9 +172,15 @@ def home():
 # ---------------- Run Server ----------------
 
 def run_server():
+    import threading
+    threading.Thread(target=start_inference, daemon=True).start()
+
     app.run(
         host="0.0.0.0",
         port=7860,
         debug=False,
         use_reloader=False
     )
+
+def start_inference():
+    import inference
