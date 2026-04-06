@@ -8,7 +8,6 @@ def run():
     credential_stuffing()
 
     env = DeceptionEnv()
-
     env.reset()
 
     total_reward = 0
@@ -17,6 +16,9 @@ def run():
     total_reward += r
 
     _, r, _, _ = env.step("deploy_honeypot")
+    total_reward += r
+
+    _, r, _, _ = env.step("fake_database")
     total_reward += r
 
     _, r, _, _ = env.step("block_ip")

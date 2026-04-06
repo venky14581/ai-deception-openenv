@@ -6,9 +6,8 @@ def run():
     brute_force()
 
     env = DeceptionEnv()
-
     env.reset()
 
-    state, reward, done, _ = env.step("detect_attack")
+    _, reward, _, _ = env.step("detect_attack")
 
     return reward
