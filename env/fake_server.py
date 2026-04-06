@@ -173,9 +173,8 @@ def home():
 
 def start_inference():
     import time
-    time.sleep(3)  # wait for server to start
+    time.sleep(5)  # wait for server start
     import inference
-
 
 def run_server():
     import threading
