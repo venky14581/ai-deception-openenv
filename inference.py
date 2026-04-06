@@ -100,3 +100,5 @@ print(
     f"[END] success=true steps=3 rewards={','.join(f'{r:.2f}' for r in rewards)}",
     flush=True
 )
+while True:
+    time.sleep(60)
