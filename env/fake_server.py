@@ -171,8 +171,15 @@ def home():
 
 # ---------------- Run Server ----------------
 
+def start_inference():
+    import time
+    time.sleep(3)  # wait for server to start
+    import inference
+
+
 def run_server():
     import threading
+
     threading.Thread(target=start_inference, daemon=True).start()
 
     app.run(
@@ -181,6 +188,3 @@ def run_server():
         debug=False,
         use_reloader=False
     )
-
-def start_inference():
-    import inference
