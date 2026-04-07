@@ -171,16 +171,7 @@ def home():
 
 # ---------------- Run Server ----------------
 
-def start_inference():
-    import time
-    time.sleep(5)  # wait for server start
-    import inference
-
 def run_server():
-    import threading
-
-    threading.Thread(target=start_inference, daemon=True).start()
-
     app.run(
         host="0.0.0.0",
         port=7860,
