@@ -115,7 +115,7 @@ def reset():
 
 # ---------------- Step API (IMPORTANT) ----------------
 
-@app.route("/step", methods=["POST"])
+@app.route("/step", methods=["GET","POST"])
 def step():
 
     action = request.json.get("action")
