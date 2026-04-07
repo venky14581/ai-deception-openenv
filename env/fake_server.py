@@ -115,14 +115,17 @@ def reset():
 
 # ---------------- Step API (IMPORTANT) ----------------
 
-@app.route("/step", methods=["GET","POST"])
+@app.route("/step", methods=["GET", "POST"])
 def step():
 
-    action = request.json.get("action")
+    if request.method == "POST":
+        data = request.get_json(silent=True) or {}
+        action = data.get("action", None)
+    else:
+        action = request.args.get("action")
 
     reward = 0.0
     done = False
-
     # Detect brute force
     if action == "detect_bruteforce":
         if logs["failed_logins"] > 3:
