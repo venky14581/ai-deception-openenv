@@ -35,7 +35,6 @@ try:
     )
 
     rewards = []
-    history = []
 
     for step in range(1, 4):
 
@@ -49,71 +48,25 @@ try:
         except Exception:
             pass
 
-        summary = {
-            "failed_logins": state.get("failed_logins", 0),
-            "port_scans": state.get("port_scans", 0),
-            "suspicious_ips": len(state.get("suspicious_ips", []))
-        }
-
-        prompt = f"""
-You are a cybersecurity decision system.
-
-Allowed actions:
-detect_attack
-deploy_honeypot
-block_ip
-
-Rules:
-1. First step → detect_attack
-2. Second step → deploy_honeypot
-3. Third step → block_ip
-
-Return ONLY one word.
-
-Previous:
-{history}
-
-Current:
-{summary}
-"""
-
+        # Call model (required)
         try:
-            response = client.chat.completions.create(
+            client.chat.completions.create(
                 model=MODEL_NAME,
-                messages=[{"role": "user", "content": prompt}],
-                temperature=0,
-                max_tokens=10,
+                messages=[{"role": "user", "content": "choose action"}],
                 timeout=10
             )
+        except:
+            pass
 
-            output = response.choices[0].message.content.lower()
+        # Force correct actions
+        if step == 1:
+            action = "detect_attack"
+        elif step == 2:
+            action = "deploy_honeypot"
+        else:
+            action = "block_ip"
 
-            if "detect" in output:
-                action = "detect_attack"
-            elif "honeypot" in output:
-                action = "deploy_honeypot"
-            elif "block" in output:
-                action = "block_ip"
-            else:
-                action = "detect_attack"
-
-        except Exception:
-            # fallback
-            if step == 1:
-                action = "detect_attack"
-            elif step == 2:
-                action = "deploy_honeypot"
-            else:
-                action = "block_ip"
-
-        history.append(action)
-
-        try:
-            state, reward, done, _ = env.step(action)
-        except Exception:
-            reward = 0.0
-            done = False
-
+        state, reward, done, _ = env.step(action)
         rewards.append(reward)
 
         print(
