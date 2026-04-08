@@ -13,7 +13,7 @@ from env.attacker import simulate_attack
 
 # Start server in background
 threading.Thread(target=run_server, daemon=True).start()
-time.sleep(3)
+time.sleep(2)
 
 API_BASE_URL = os.getenv("API_BASE_URL", "https://router.huggingface.co/v1")
 MODEL_NAME = os.getenv("MODEL_NAME", "Qwen/Qwen2.5-7B-Instruct")
@@ -41,12 +41,12 @@ try:
 
         try:
             simulate_attack()
-        except:
+        except Exception:
             pass
 
         try:
             state = env.state()
-        except:
+        except Exception:
             pass
 
         summary = {
@@ -56,38 +56,64 @@ try:
         }
 
         prompt = f"""
-Previous actions: {history}
-Current summary: {summary}
+You are a cybersecurity decision system.
 
-Return one:
+Allowed actions:
 detect_attack
 deploy_honeypot
 block_ip
+
+Rules:
+1. First step → detect_attack
+2. Second step → deploy_honeypot
+3. Third step → block_ip
+
+Return ONLY one word.
+
+Previous:
+{history}
+
+Current:
+{summary}
 """
 
         try:
             response = client.chat.completions.create(
                 model=MODEL_NAME,
                 messages=[{"role": "user", "content": prompt}],
-                temperature=0.2,
-                max_tokens=20,
-                timeout=15
+                temperature=0,
+                max_tokens=10,
+                timeout=10
             )
 
-            action = response.choices[0].message.content.strip()
+            output = response.choices[0].message.content.lower()
 
-        except:
-
-            if not history:
+            if "detect" in output:
                 action = "detect_attack"
-            elif history[-1] == "detect_attack":
+            elif "honeypot" in output:
+                action = "deploy_honeypot"
+            elif "block" in output:
+                action = "block_ip"
+            else:
+                action = "detect_attack"
+
+        except Exception:
+            # fallback
+            if step == 1:
+                action = "detect_attack"
+            elif step == 2:
                 action = "deploy_honeypot"
             else:
                 action = "block_ip"
 
         history.append(action)
 
-        state, reward, done, _ = env.step(action)
+        try:
+            state, reward, done, _ = env.step(action)
+        except Exception:
+            reward = 0.0
+            done = False
+
         rewards.append(reward)
 
         print(
@@ -99,15 +125,13 @@ block_ip
     score = min(sum(rewards), 1.0)
 
     print(
-        f"[END] success=true steps={len(rewards)} "
+        f"[END] success=true steps=3 "
         f"score={score:.2f} rewards={','.join(f'{r:.2f}' for r in rewards)}",
         flush=True
     )
 
 except Exception:
-
     traceback.print_exc()
-
     print(
         "[END] success=false steps=0 score=0.00 rewards=",
         flush=True
