@@ -135,3 +135,15 @@ except Exception:
         "[END] success=false steps=0 score=0.00 rewards=",
         flush=True
     )
+# Keep server alive for reset endpoint
+import threading
+
+def keep_alive():
+    while True:
+        time.sleep(60)
+
+threading.Thread(target=keep_alive, daemon=True).start()
+
+# keep main thread alive
+while True:
+    time.sleep(60)
