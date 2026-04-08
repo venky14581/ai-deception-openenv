@@ -91,4 +91,4 @@ except Exception:
     )
 
 # Allow validator reset calls (important)
-time.sleep(600)
+time.sleep(120)
