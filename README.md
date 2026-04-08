@@ -177,16 +177,30 @@ ai-deception-openenv/
 │   ├── hard.py
 │   └── test_tasks.py
 │
-├── inference.py
-├── app.py
-├── models.py
-├── openenv.yaml
-├── Dockerfile
-├── requirements.txt
-├── README.md
+├── server/
+│   └── app.py              # OpenEnv server entry point
+│
+├── inference.py            # Baseline inference script
+├── app.py                  # Flask app
+├── models.py               # Pydantic models
+├── openenv.yaml            # OpenEnv configuration
+├── Dockerfile              # Container setup
+├── requirements.txt        # Dependencies
+├── pyproject.toml          # Multi-mode deployment config
+├── uv.lock                 # Dependency lock file
+├── README.md               # Documentation
 ├── .gitignore
 └── .gitattributes
 
+This environment implements a real-world AI cyber deception system:
+
+- env/ → Core simulation environment
+- tasks/ → Graded tasks (easy → medium → hard)
+- server/ → OpenEnv server entrypoint
+- inference.py → Baseline AI agent
+- openenv.yaml → OpenEnv metadata
+- models.py → Typed API models
+- Dockerfile → HuggingFace deployment
 
 ✅ OpenEnv Compliance
 reset() implemented
