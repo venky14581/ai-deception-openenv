@@ -101,7 +101,7 @@ def state():
 
 # ---------------- Reset API ----------------
 
-@app.route("/reset", methods=["POST"])
+@app.route("/reset", methods=["GET", "POST"])
 def reset():
     global logs
     logs = {
