@@ -101,7 +101,7 @@ def state():
 
 # ---------------- Reset API ----------------
 
-@app.route("/reset", methods=["GET","POST"])
+@app.route("/reset", methods=["POST"])
 def reset():
     global logs
     logs = {
@@ -110,8 +110,10 @@ def reset():
         "suspicious_ips": [],
         "requests": []
     }
-    return jsonify({"status": "reset"})
-
+    return jsonify({
+        "status": "reset",
+        "success": True
+    }), 200
 
 # ---------------- Step API (IMPORTANT) ----------------
 
