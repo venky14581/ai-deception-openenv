@@ -40,7 +40,8 @@ try:
     rewards = []
     history = []
 
-    for step in range(1, 10):
+    # Only 3 steps (important for timeout)
+    for step in range(1, 4):
 
         try:
             simulate_attack()
@@ -48,7 +49,7 @@ try:
             pass
 
         try:
-            state = env.state()   # FIXED
+            state = env.state()
         except Exception:
             state = env.reset()
 
@@ -86,13 +87,14 @@ block_ip
                 model=MODEL_NAME,
                 messages=[{"role": "user", "content": prompt}],
                 temperature=0.2,
-                max_tokens=20
+                max_tokens=20,
+                timeout=20  # IMPORTANT
             )
 
             action = response.choices[0].message.content.strip()
 
         except Exception:
-            # fallback
+            # fallback logic
             if not history:
                 action = "detect_attack"
             elif history[-1] == "detect_attack":
@@ -133,7 +135,3 @@ except Exception:
         "[END] success=false steps=0 score=0.00 rewards=",
         flush=True
     )
-
-# keep container alive
-while True:
-    time.sleep(60)
