@@ -110,3 +110,7 @@ print(
     f"score={score:.2f} rewards={','.join(f'{r:.2f}' for r in rewards)}",
     flush=True
 )
+import time
+
+while True:
+    time.sleep(60)
