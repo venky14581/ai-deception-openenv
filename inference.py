@@ -7,7 +7,7 @@ from openai import OpenAI
 
 random.seed(42)
 
-# Start server safely
+# Start server
 try:
     from env.fake_server import run_server
     threading.Thread(target=run_server, daemon=True).start()
@@ -23,7 +23,6 @@ MODEL_NAME = os.getenv("MODEL_NAME", "Qwen/Qwen2.5-7B-Instruct")
 HF_TOKEN = os.getenv("HF_TOKEN")
 
 try:
-
     client = OpenAI(
         base_url=API_BASE_URL,
         api_key=HF_TOKEN
@@ -40,7 +39,6 @@ try:
     rewards = []
     history = []
 
-    # Only 3 steps (important for timeout)
     for step in range(1, 4):
 
         try:
@@ -68,17 +66,9 @@ Previous actions:
 Current summary:
 {summary}
 
-STRICT RULES:
-
-1. If no previous action → detect_attack
-2. If last action == detect_attack → deploy_honeypot
-3. If last action == deploy_honeypot → block_ip
-4. If last action == block_ip → block_ip
-
 Return ONLY one word:
 detect_attack
 deploy_honeypot
-fake_database
 block_ip
 """
 
@@ -88,13 +78,12 @@ block_ip
                 messages=[{"role": "user", "content": prompt}],
                 temperature=0.2,
                 max_tokens=20,
-                timeout=20  # IMPORTANT
+                timeout=20
             )
 
             action = response.choices[0].message.content.strip()
 
         except Exception:
-            # fallback logic
             if not history:
                 action = "detect_attack"
             elif history[-1] == "detect_attack":
@@ -135,15 +124,3 @@ except Exception:
         "[END] success=false steps=0 score=0.00 rewards=",
         flush=True
     )
-# Keep server alive for reset endpoint
-import threading
-
-def keep_alive():
-    while True:
-        time.sleep(60)
-
-threading.Thread(target=keep_alive, daemon=True).start()
-
-# keep main thread alive
-while True:
-    time.sleep(60)
