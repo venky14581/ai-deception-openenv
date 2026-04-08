@@ -6,20 +6,20 @@ from openai import OpenAI
 
 random.seed(42)
 
+# Start server
 from env.fake_server import run_server
 threading.Thread(target=run_server, daemon=True).start()
-
 time.sleep(3)
+
 from env.env import DeceptionEnv
 from env.attacker import simulate_attack
-
 
 API_BASE_URL = os.getenv("API_BASE_URL", "https://router.huggingface.co/v1")
 MODEL_NAME = os.getenv("MODEL_NAME", "Qwen/Qwen2.5-7B-Instruct")
 HF_TOKEN = os.getenv("HF_TOKEN")
 
 if not HF_TOKEN:
-    print("[ERROR] HF_TOKEN not set. Please set your Hugging Face token.")
+    print("[ERROR] HF_TOKEN not set.")
     exit(1)
 
 client = OpenAI(
@@ -28,16 +28,19 @@ client = OpenAI(
 )
 
 env = DeceptionEnv()
-state = env.reset()   # reset only once
+state = env.reset()
 
 print("[START] task=ai-deception env=cyber-security model=AI-agent", flush=True)
 
 rewards = []
 history = []
 
-for step in range(1, 4):
+for step in range(1, 10):
 
     simulate_attack()
+
+    # UPDATE STATE BEFORE DECISION (important fix)
+    state = env.state
 
     summary = {
         "failed_logins": state["failed_logins"],
@@ -54,7 +57,7 @@ Previous actions:
 Current summary:
 {summary}
 
-STRICT RULES (must follow exactly):
+STRICT RULES:
 
 1. If no previous action → detect_attack
 2. If last action == detect_attack → deploy_honeypot
@@ -77,7 +80,7 @@ block_ip
 
     action = response.choices[0].message.content.strip()
 
-    # deterministic fallback
+    # fallback logic
     if history:
         last = history[-1]
         if last == "detect_attack":
@@ -95,11 +98,15 @@ block_ip
         f"done={str(done).lower()} error=null",
         flush=True
     )
+
+    if done:
+        break
+
+# FINAL SCORE FIX
 score = min(sum(rewards), 1.0)
 
 print(
-    f"[END] success=true steps=3 score={score:.2f} rewards={','.join(f'{r:.2f}' for r in rewards)}",
+    f"[END] success=true steps={len(rewards)} "
+    f"score={score:.2f} rewards={','.join(f'{r:.2f}' for r in rewards)}",
     flush=True
 )
-while True:
-    time.sleep(60)

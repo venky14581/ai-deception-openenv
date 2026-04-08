@@ -1,7 +1,5 @@
 def deploy_honeypot():
 
-    print("Honeypot deployed")
-
     return {
         "action": "honeypot",
         "status": "deployed"
@@ -10,8 +8,6 @@ def deploy_honeypot():
 
 def fake_database():
 
-    print("Fake database exposed")
-
     return {
         "action": "fake_db",
         "status": "active"
@@ -19,8 +15,6 @@ def fake_database():
 
 
 def block_attacker(ip):
-
-    print(f"Blocked attacker: {ip}")
 
     return {
         "action": "block",

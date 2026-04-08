@@ -6,7 +6,7 @@ SERVER = "http://127.0.0.1:7860"
 
 class DeceptionEnv:
 
-    def __init__(self):
+    def _init_(self):
         self.state = {}
         self.done = False
 
@@ -28,7 +28,6 @@ class DeceptionEnv:
         # Detect brute force
         if action == "detect_attack":
             if failed_logins > 3:
-                print("Brute force detected")
                 reward += 0.2
             else:
                 reward -= 0.1
@@ -37,7 +36,6 @@ class DeceptionEnv:
         if action == "detect_attack":
             for r in requests_log:
                 if isinstance(r, dict) and r.get("type") == "port_scan":
-                    print("Port scan detected")
                     reward += 0.2
                     break
 
