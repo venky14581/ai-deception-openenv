@@ -80,9 +80,12 @@ def run_task(task_name):
                 pass
 
             # Model chooses action
-            action = choose_action(client, state)
-
-            # fallback
+            
+	    action = choose_action(client, state)
+	    if random.random() < 0.2:
+    		action = random.choice(env.action_space())
+	
+	            # fallback
             if action not in env.action_space():
                 action = "detect_attack"
 
