@@ -9,9 +9,42 @@ random.seed(42)
 from env.env import DeceptionEnv
 from env.attacker import simulate_attack
 
+# Import graders
+from tasks.easy.grader import grade as easy_grade
+from tasks.medium.grader import grade as medium_grade
+from tasks.hard.grader import grade as hard_grade
+
+
 API_BASE_URL = os.getenv("API_BASE_URL", "https://router.huggingface.co/v1")
 MODEL_NAME = os.getenv("MODEL_NAME", "Qwen/Qwen2.5-7B-Instruct")
 HF_TOKEN = os.getenv("HF_TOKEN")
+
+
+def choose_action(client, state):
+
+    try:
+        response = client.chat.completions.create(
+            model=MODEL_NAME,
+            messages=[
+                {
+                    "role": "system",
+                    "content": "You are a cybersecurity AI agent. Choose one action from: detect_attack, deploy_honeypot, fake_database, block_ip"
+                },
+                {
+                    "role": "user",
+                    "content": f"Current state: {state}"
+                }
+            ],
+            max_tokens=10,
+            temperature=0.0
+        )
+
+        action = response.choices[0].message.content.strip()
+
+    except Exception:
+        action = "detect_attack"
+
+    return action
 
 
 def run_task(task_name):
@@ -24,7 +57,7 @@ def run_task(task_name):
         )
 
         env = DeceptionEnv()
-        env.reset()
+        state = env.reset()
 
         print(
             f"[START] task={task_name} env=ai-deception-openenv model={MODEL_NAME}",
@@ -46,30 +79,12 @@ def run_task(task_name):
             except Exception:
                 pass
 
-            # Required OpenAI call
-            try:
-                client.chat.completions.create(
-                    model=MODEL_NAME,
-                    messages=[{"role": "user", "content": "choose action"}],
-                    timeout=10
-                )
-            except Exception:
-                pass
+            # Model chooses action
+            action = choose_action(client, state)
 
-            # Task logic
-            if task_name == "easy":
-                action = "detect_attack" if step < 3 else "deploy_honeypot"
-
-            elif task_name == "medium":
-                action = "detect_attack" if step == 1 else "deploy_honeypot"
-
-            else:  # hard
-                if step == 1:
-                    action = "detect_attack"
-                elif step == 2:
-                    action = "deploy_honeypot"
-                else:
-                    action = "block_ip"
+            # fallback
+            if action not in env.action_space():
+                action = "detect_attack"
 
             state, reward, done, _ = env.step(action)
 
@@ -86,10 +101,16 @@ def run_task(task_name):
                 break
 
         steps = len(rewards)
-        score = sum(rewards) / steps if steps > 0 else 0.0
-        score = min(max(score, 0.05), 0.95)
 
-        success = score >= 0.3
+        # Use graders
+        if task_name == "easy":
+            score = easy_grade(rewards)
+        elif task_name == "medium":
+            score = medium_grade(rewards)
+        else:
+            score = hard_grade(rewards)
+
+        success = score >= 0.5
 
         print(
             f"[END] success={str(success).lower()} steps={steps} "

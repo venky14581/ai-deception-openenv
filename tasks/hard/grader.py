@@ -1,12 +1,9 @@
-def grade(reward):
+def grade(rewards):
+    score = sum(rewards) / len(rewards)
 
-    if reward >= 0.8:
+    if score >= 0.6:
         return 1.0
-
-    elif reward >= 0.5:
+    elif score >= 0.4:
         return 0.7
-
-    elif reward >= 0.3:
-        return 0.4
-
-    return 0.0
+    else:
+        return 0.3
