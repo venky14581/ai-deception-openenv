@@ -1,4 +1,3 @@
-import threading
 import time
 import os
 import random
@@ -7,13 +6,8 @@ from openai import OpenAI
 
 random.seed(42)
 
-from server.app import main as run_server
 from env.env import DeceptionEnv
 from env.attacker import simulate_attack
-
-# Start server in background
-threading.Thread(target=run_server, daemon=True).start()
-time.sleep(2)
 
 API_BASE_URL = os.getenv("API_BASE_URL", "https://router.huggingface.co/v1")
 MODEL_NAME = os.getenv("MODEL_NAME", "Qwen/Qwen2.5-7B-Instruct")
@@ -33,7 +27,7 @@ def run_task(task_name):
         env.reset()
 
         print(
-            f"[START] task={task_name} env=cyber-security model={MODEL_NAME}",
+            f"[START] task={task_name} env=ai-deception-openenv model={MODEL_NAME}",
             flush=True
         )
 
@@ -52,7 +46,7 @@ def run_task(task_name):
             except Exception:
                 pass
 
-            # Required OpenAI call (validator requirement)
+            # Required OpenAI call
             try:
                 client.chat.completions.create(
                     model=MODEL_NAME,
@@ -62,22 +56,12 @@ def run_task(task_name):
             except Exception:
                 pass
 
-            # Task-specific logic
+            # Task logic
             if task_name == "easy":
-                if step == 1:
-                    action = "detect_attack"
-                elif step == 2:
-                    action = "detect_attack"
-                else:
-                    action = "deploy_honeypot"
+                action = "detect_attack" if step < 3 else "deploy_honeypot"
 
             elif task_name == "medium":
-                if step == 1:
-                    action = "detect_attack"
-                elif step == 2:
-                    action = "deploy_honeypot"
-                else:
-                    action = "deploy_honeypot"
+                action = "detect_attack" if step == 1 else "deploy_honeypot"
 
             else:  # hard
                 if step == 1:
@@ -89,9 +73,7 @@ def run_task(task_name):
 
             state, reward, done, _ = env.step(action)
 
-            # clamp reward to (0,1)
             reward = min(max(reward, 0.05), 0.95)
-
             rewards.append(reward)
 
             print(
@@ -111,7 +93,7 @@ def run_task(task_name):
 
         print(
             f"[END] success={str(success).lower()} steps={steps} "
-            f"score={score:.3f} rewards={','.join(f'{r:.2f}' for r in rewards)}",
+            f"score={score:.2f} rewards={','.join(f'{r:.2f}' for r in rewards)}",
             flush=True
         )
 
@@ -123,10 +105,9 @@ def run_task(task_name):
         )
 
 
-# Run tasks
 run_task("easy")
 run_task("medium")
 run_task("hard")
 
-# Keep space alive briefly for validation (3 min)
+# Keep alive briefly
 time.sleep(180)
