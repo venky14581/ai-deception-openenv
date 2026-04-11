@@ -87,17 +87,22 @@ class DeceptionEnv:
         # ---------------- Block Attacker ----------------
         elif action == "block_ip":
 
-            # Proper block after detect + deploy
-            if logs.get("suspicious_ips") and self.detected and self.deployed:
+            # Only allow block after detection + deception
+            if (
+                logs.get("suspicious_ips")
+                and self.detected
+                and self.deployed
+                and self.current_step >= 3
+            ):
 
                 ip = logs["suspicious_ips"][-1]
                 block_attacker(ip)
 
-                reward += 0.70   # higher reward for correct block
+                reward += 0.70
                 self.done = True
 
             else:
-                # early block penalty
+                # Early block penalty
                 reward += 0.05
 
         # ---------------- Episode Boundary ----------------
