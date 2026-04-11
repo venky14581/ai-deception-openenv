@@ -8,8 +8,14 @@ from openai import OpenAI
 random.seed(42)
 
 from env.fake_server import run_server
-threading.Thread(target=run_server, daemon=True).start()
-time.sleep(2)
+def start_server():
+    try:
+        requests.get("http://127.0.0.1:7860/status", timeout=1)
+        # server already running
+    except:
+        threading.Thread(target=run_server, daemon=True).start()
+        time.sleep(2)
+start_server()
 from env.env import DeceptionEnv
 from env.attacker import simulate_attack
 
