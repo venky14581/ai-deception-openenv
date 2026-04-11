@@ -14,11 +14,16 @@ logs = {
     "requests": []
 }
 
+# Helper to extract attacker IP
+def get_ip():
+    return request.headers.get("X-Forwarded-For", request.remote_addr)
+
+
 # ---------------- Login Attack ----------------
 
 @app.route("/login", methods=["POST"])
 def login():
-    ip = request.remote_addr
+    ip = get_ip()
     username = request.form.get("username")
     password = request.form.get("password")
 
@@ -28,6 +33,14 @@ def login():
         "username": username,
         "time": time.time()
     })
+
+    # Detect SQL injection
+    if "'" in str(username) or "--" in str(username):
+        logs["requests"].append({
+            "ip": ip,
+            "type": "sql_injection",
+            "time": time.time()
+        })
 
     if password == "admin123":
         return jsonify({"status": "success"})
@@ -44,7 +57,7 @@ def login():
 
 @app.route("/scan", methods=["GET"])
 def scan():
-    ip = request.remote_addr
+    ip = get_ip()
 
     logs["port_scans"] += 1
 
@@ -60,11 +73,11 @@ def scan():
     return jsonify({"status": "scan detected"})
 
 
-# ---------------- SQL Injection Attack ----------------
+# ---------------- SQL Injection Endpoint ----------------
 
 @app.route("/sql")
 def sql():
-    ip = request.remote_addr
+    ip = get_ip()
 
     logs["requests"].append({
         "ip": ip,
@@ -82,7 +95,7 @@ def sql():
 
 @app.route("/download")
 def download():
-    ip = request.remote_addr
+    ip = get_ip()
 
     logs["requests"].append({
         "ip": ip,
@@ -96,23 +109,50 @@ def download():
     return jsonify({"status": "directory traversal attempt"})
 
 
-# Common scan endpoints
+# ---------------- Common Scan Endpoints ----------------
 
 @app.route("/admin")
 def admin():
+    ip = get_ip()
+
     logs["port_scans"] += 1
+
+    logs["requests"].append({
+        "ip": ip,
+        "type": "port_scan",
+        "time": time.time()
+    })
+
     return "Forbidden", 403
 
 
 @app.route("/config")
 def config():
+    ip = get_ip()
+
     logs["port_scans"] += 1
+
+    logs["requests"].append({
+        "ip": ip,
+        "type": "port_scan",
+        "time": time.time()
+    })
+
     return "Forbidden", 403
 
 
 @app.route("/backup")
 def backup():
+    ip = get_ip()
+
     logs["port_scans"] += 1
+
+    logs["requests"].append({
+        "ip": ip,
+        "type": "port_scan",
+        "time": time.time()
+    })
+
     return "Forbidden", 403
 
 

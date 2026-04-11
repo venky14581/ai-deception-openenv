@@ -70,10 +70,10 @@ class DeceptionEnv:
             fake_database()
             reward += 0.20
 
-        # Block attacker
+        # Block attacker (multi attacker support)
         elif action == "block_ip":
             if logs.get("suspicious_ips"):
-                ip = logs["suspicious_ips"][0]
+                ip = logs["suspicious_ips"][-1]   # latest attacker
                 block_attacker(ip)
                 reward += 0.50
                 self.done = True
