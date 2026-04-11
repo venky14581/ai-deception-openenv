@@ -28,7 +28,7 @@ def choose_action(client, state):
             messages=[
                 {
                     "role": "system",
-                    "content": "You are a cybersecurity AI agent. Choose one action from: detect_attack, deploy_honeypot, fake_database, block_ip"
+                    "content": "You are a cybersecurity deception agent. Choose one action from: detect_attack, deploy_honeypot, fake_database, block_ip"
                 },
                 {
                     "role": "user",
@@ -79,13 +79,14 @@ def run_task(task_name):
             except Exception:
                 pass
 
-            # Model chooses action
-            
-	    action = choose_action(client, state)
-	    if random.random() < 0.2:
-    		action = random.choice(env.action_space())
-	
-	            # fallback
+            # AI chooses action
+            action = choose_action(client, state)
+
+            # exploration
+            if random.random() < 0.2:
+                action = random.choice(env.action_space())
+
+            # fallback
             if action not in env.action_space():
                 action = "detect_attack"
 
@@ -105,7 +106,7 @@ def run_task(task_name):
 
         steps = len(rewards)
 
-        # Use graders
+        # grading
         if task_name == "easy":
             score = easy_grade(rewards)
         elif task_name == "medium":
