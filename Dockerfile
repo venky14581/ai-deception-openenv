@@ -8,4 +8,4 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 EXPOSE 7860
 
-CMD python app.py & python inference.py; wait
+CMD ["sh", "-c", "python app.py & python inference.py"]

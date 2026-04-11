@@ -1,19 +1,19 @@
-name: ai-deception-env
+name: ai-deception-openenv
 version: 1
 environment: cyber-security
-description: AI Cyber Deception Environment
+description: AI Cyber Deception Environment for detecting, deceiving, and blocking cyber attacks
+
+entrypoint: inference.py
 
 tasks:
   - name: easy
-    description: Detect brute force attack
+    description: Detect cyber attack
 
   - name: medium
-    description: Deploy honeypot
+    description: Detect attack and deploy deception
 
   - name: hard
-    description: Block attacker
-
-entrypoint: inference.py
+    description: Detect, deceive, and block attacker
 
 actions:
   - detect_attack
@@ -25,5 +25,7 @@ observations:
   - failed_logins
   - port_scans
   - suspicious_ips
+  - total_requests
+  - attack_types
 
 reward_range: [0.0, 1.0]

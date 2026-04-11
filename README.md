@@ -14,7 +14,7 @@ pinned: false
 
 AI Cyber Deception OpenEnv is a real-world cybersecurity simulation environment where an AI agent learns to detect, deceive, and mitigate cyber attacks.
 
-This environment simulates production-like cybersecurity defense scenarios including brute force attacks, port scanning, and credential stuffing.
+This environment simulates production-like cybersecurity defense scenarios including brute force attacks, port scanning, SQL injection, directory traversal, and credential stuffing.
 
 The environment follows the **OpenEnv specification** and supports:
 
@@ -30,6 +30,8 @@ Simulate cybersecurity defense in a production-like environment:
 
 - Detect brute force attacks
 - Detect port scanning
+- Detect SQL injection
+- Detect directory traversal
 - Deploy deception mechanisms
 - Block malicious attackers
 
@@ -53,20 +55,41 @@ Environment returns structured observation:
 - `failed_logins`
 - `port_scans`
 - `suspicious_ips`
-- `request_logs`
+- `total_requests`
+- `attack_types`
 
 ---
 
 ## 🧠 Tasks
 
 ### Easy Task
-Detect brute force attack
+
+Detect cyber attack
+
+Goal:
+- Detect suspicious activity
+- Identify attack patterns
+
+---
 
 ### Medium Task
-Detect attack and deploy honeypot
+
+Detect attack and deploy deception
+
+Goal:
+- Detect cyber attack
+- Deploy honeypot or fake database
+
+---
 
 ### Hard Task
-Detect, deceive, and block attacker
+
+Full cyber defense workflow
+
+Goal:
+- Detect attack
+- Deploy deception
+- Block attacker
 
 ---
 
@@ -74,10 +97,11 @@ Detect, deceive, and block attacker
 
 | Action | Reward |
 |--------|--------|
-| detect_attack | 0.20 |
+| detect_attack | 0.15–0.45 |
 | deploy_honeypot | 0.30 |
 | fake_database | 0.20 |
-| block_ip | 0.50 |
+| block_ip (correct) | 0.70 |
+| early block | 0.05 |
 
 Reward range normalized between **0.0 – 1.0**
 
@@ -113,7 +137,6 @@ pip install -r requirements.txt
 Run inference:
 
 python inference.py
-
 🐳 Docker
 
 Build:
@@ -123,8 +146,8 @@ docker build -t ai-deception .
 Run:
 
 docker run -p 7860:7860 ai-deception
-
 🤗 Hugging Face Deployment
+
 Live Space:
 
 https://bytecore1-ai-deception-openenv.hf.space/
@@ -132,20 +155,22 @@ https://bytecore1-ai-deception-openenv.hf.space/
 Endpoints:
 
 https://bytecore1-ai-deception-openenv.hf.space/reset
+
 https://bytecore1-ai-deception-openenv.hf.space/state
+
 https://bytecore1-ai-deception-openenv.hf.space/status
+
 https://bytecore1-ai-deception-openenv.hf.space/logs
 
 📊 Baseline Results
+
 Example run:
 
-[START] task=ai-deception env=cyber-security model=Qwen
-[STEP] step=1 action=detect_attack reward=0.20 done=false error=null
+[START] task=easy env=ai-deception-openenv model=Qwen
+[STEP] step=1 action=detect_attack reward=0.45 done=false error=null
 [STEP] step=2 action=deploy_honeypot reward=0.30 done=false error=null
-[STEP] step=3 action=block_ip reward=0.50 done=true error=null
-[END] success=true steps=3 score=1.00 rewards=0.20,0.30,0.50
-
-
+[STEP] step=3 action=block_ip reward=0.70 done=true error=null
+[END] success=true steps=3 score=0.48 rewards=0.45,0.30,0.70
 🏗️ Architecture
 Attacker
    ↓
@@ -156,7 +181,6 @@ AI Agent (Inference)
 Defense Actions
    ↓
 Reward
-
 📦 Project Structure
 
 ai-deception-openenv/
@@ -172,35 +196,39 @@ ai-deception-openenv/
 │
 ├── tasks/
 │   ├── __init__.py
-│   ├── easy.py
-│   ├── medium.py
-│   ├── hard.py
+│   │
+│   ├── easy/
+│   │   ├── __init__.py
+│   │   ├── task.py
+│   │   └── grader.py
+│   │
+│   ├── medium/
+│   │   ├── __init__.py
+│   │   ├── task.py
+│   │   └── grader.py
+│   │
+│   ├── hard/
+│   │   ├── __init__.py
+│   │   ├── task.py
+│   │   └── grader.py
+│   │
 │   └── test_tasks.py
 │
 ├── server/
-│   └── app.py              # OpenEnv server entry point
+│   └── app.py
 │
-├── inference.py            # Baseline inference script
-├── app.py                  # Flask app
-├── models.py               # Pydantic models
-├── openenv.yaml            # OpenEnv configuration
-├── Dockerfile              # Container setup
-├── requirements.txt        # Dependencies
-├── pyproject.toml          # Multi-mode deployment config
-├── uv.lock                 # Dependency lock file
-├── README.md               # Documentation
+├── inference.py
+├── app.py
+├── models.py
+├── openenv.yaml
+├── Dockerfile
+├── requirements.txt
+├── pyproject.toml
+├── uv.lock
+├── README.md
+├── LICENSE
 ├── .gitignore
 └── .gitattributes
-
-This environment implements a real-world AI cyber deception system:
-
-- env/ → Core simulation environment
-- tasks/ → Graded tasks (easy → medium → hard)
-- server/ → OpenEnv server entrypoint
-- inference.py → Baseline AI agent
-- openenv.yaml → OpenEnv metadata
-- models.py → Typed API models
-- Dockerfile → HuggingFace deployment
 
 ✅ OpenEnv Compliance
 reset() implemented
@@ -210,24 +238,22 @@ Docker support
 Structured logs
 Multiple tasks
 Reward normalization
-
 👨‍💻 Use Case
+
 This environment can be used for:
 
 Cybersecurity research
 Reinforcement learning
 AI defense strategy training
 Red team vs blue team simulations
-
 🛡️ AI Cyber Deception
+
 This project demonstrates how AI can:
 
 Detect attackers
 Deploy deception
 Block malicious actors
 Learn defensive strategies
-
-
 License
 
 MIT License

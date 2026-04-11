@@ -1,14 +1,14 @@
 [project]
 name = "ai-deception-openenv"
 version = "0.1.0"
-description = "AI Cyber Deception OpenEnv"
+description = "AI Cyber Deception OpenEnv environment for detecting, deceiving, and mitigating cyber attacks"
 requires-python = ">=3.10"
 
 dependencies = [
-    "flask",
-    "requests",
-    "pydantic",
-    "openai",
+    "flask>=2.0.0",
+    "requests>=2.0.0",
+    "pydantic>=1.10.0",
+    "openai>=1.0.0",
     "openenv-core>=0.2.0"
 ]
 
@@ -16,5 +16,5 @@ dependencies = [
 server = "server.app:main"
 
 [build-system]
-requires = ["setuptools", "wheel"]
+requires = ["setuptools>=61.0", "wheel"]
 build-backend = "setuptools.build_meta"
