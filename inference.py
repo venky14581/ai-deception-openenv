@@ -1,4 +1,4 @@
-import time
+kimport time
 import os
 import random
 import traceback
@@ -28,7 +28,17 @@ def choose_action(client, state):
             messages=[
                 {
                     "role": "system",
-                    "content": "You are a cybersecurity deception agent. Choose one action from: detect_attack, deploy_honeypot, fake_database, block_ip"
+                    "content": """You are a cybersecurity deception agent.
+
+Choose the best action based on the state:
+
+- detect_attack → when attacks suspected
+- deploy_honeypot → after attack detected
+- fake_database → when attacker probing system
+- block_ip → when attacker confirmed
+
+Return only one action from:
+detect_attack, deploy_honeypot, fake_database, block_ip"""
                 },
                 {
                     "role": "user",
@@ -36,7 +46,7 @@ def choose_action(client, state):
                 }
             ],
             max_tokens=10,
-            temperature=0.3
+            temperature=0.4
         )
 
         action = response.choices[0].message.content.strip()
@@ -82,8 +92,8 @@ def run_task(task_name):
             # AI chooses action
             action = choose_action(client, state)
 
-            # exploration
-            if random.random() < 0.2:
+            # exploration (30%)
+            if random.random() < 0.3:
                 action = random.choice(env.action_space())
 
             # fallback
