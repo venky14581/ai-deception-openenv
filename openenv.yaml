@@ -1,4 +1,6 @@
 name: ai-deception-env
+version: 1
+environment: cyber-security
 description: AI Cyber Deception Environment
 
 tasks:

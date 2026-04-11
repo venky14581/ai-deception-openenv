@@ -7,11 +7,11 @@ from openai import OpenAI
 
 random.seed(42)
 
-from env.fake_server import run_server
+from server.app import main as run_server
 from env.env import DeceptionEnv
 from env.attacker import simulate_attack
 
-# Start server
+# Start server in background
 threading.Thread(target=run_server, daemon=True).start()
 time.sleep(2)
 
@@ -33,22 +33,23 @@ def run_task(task_name):
         env.reset()
 
         print(
-            f"[START] task={task_name} env=cyber-security model=AI-agent",
+            f"[START] task={task_name} env=cyber-security model={MODEL_NAME}",
             flush=True
         )
 
         rewards = []
+        done = False
 
         for step in range(1, 4):
 
             try:
                 simulate_attack()
-            except:
+            except Exception:
                 pass
 
             try:
                 state = env.state()
-            except:
+            except Exception:
                 pass
 
             # Required OpenAI call (validator requirement)
@@ -58,7 +59,7 @@ def run_task(task_name):
                     messages=[{"role": "user", "content": "choose action"}],
                     timeout=10
                 )
-            except:
+            except Exception:
                 pass
 
             # Task-specific logic
@@ -88,7 +89,7 @@ def run_task(task_name):
 
             state, reward, done, _ = env.step(action)
 
-            # keep reward strictly (0,1)
+            # clamp reward to (0,1)
             reward = min(max(reward, 0.05), 0.95)
 
             rewards.append(reward)
@@ -99,12 +100,18 @@ def run_task(task_name):
                 flush=True
             )
 
-        score = sum(rewards) / 3
+            if done:
+                break
+
+        steps = len(rewards)
+        score = sum(rewards) / steps if steps > 0 else 0.0
         score = min(max(score, 0.05), 0.95)
 
+        success = score >= 0.3
+
         print(
-            f"[END] success=true steps=3 "
-            f"score={score:.2f} rewards={','.join(f'{r:.2f}' for r in rewards)}",
+            f"[END] success={str(success).lower()} steps={steps} "
+            f"score={score:.3f} rewards={','.join(f'{r:.2f}' for r in rewards)}",
             flush=True
         )
 
@@ -116,10 +123,10 @@ def run_task(task_name):
         )
 
 
-# Run 3 Tasks
+# Run tasks
 run_task("easy")
 run_task("medium")
 run_task("hard")
 
-# allow validator reset calls
-time.sleep(120)
+# Keep space alive briefly for validation (3 min)
+time.sleep(180)

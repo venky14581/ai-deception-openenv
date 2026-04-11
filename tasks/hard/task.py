@@ -1,14 +1,15 @@
 from env.env import DeceptionEnv
 from env.attacker import brute_force, port_scan, credential_stuffing
 
+
 def run():
+
+    env = DeceptionEnv()
+    env.reset()
 
     brute_force()
     port_scan()
     credential_stuffing()
-
-    env = DeceptionEnv()
-    env.reset()
 
     total_reward = 0
 

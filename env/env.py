@@ -6,31 +6,37 @@ SERVER = "http://127.0.0.1:7860"
 
 class DeceptionEnv:
 
-    def _init_(self):
-        self.state = {}
+    def __init__(self):
+        self._state = {}
         self.done = False
+        self.max_steps = 5
+        self.current_step = 0
 
     def reset(self):
         self.done = False
+        self.current_step = 0
+
         logs = requests.get(f"{SERVER}/logs").json()
-        self.state = logs
-        return self.state
+        self._state = logs
+
+        return self._state
 
     def step(self, action):
 
-        reward = 0
+        reward = 0.0
+        self.current_step += 1
 
         logs = requests.get(f"{SERVER}/logs").json()
 
-        failed_logins = logs["failed_logins"]
-        requests_log = logs["requests"]
+        failed_logins = logs.get("failed_logins", 0)
+        requests_log = logs.get("requests", [])
 
         # Detect brute force
         if action == "detect_attack":
             if failed_logins > 3:
                 reward += 0.2
             else:
-                reward -= 0.1
+                reward -= 0.05
 
         # Detect port scan
         if action == "detect_attack":
@@ -40,29 +46,33 @@ class DeceptionEnv:
                     break
 
         # Deploy honeypot
-        if action == "deploy_honeypot":
+        elif action == "deploy_honeypot":
             deploy_honeypot()
             reward += 0.3
 
         # Fake database
-        if action == "fake_database":
+        elif action == "fake_database":
             fake_database()
             reward += 0.2
 
         # Block attacker
-        if action == "block_ip":
-            if logs["suspicious_ips"]:
+        elif action == "block_ip":
+            if logs.get("suspicious_ips"):
                 ip = logs["suspicious_ips"][0]
                 block_attacker(ip)
                 reward += 0.5
                 self.done = True
 
-        self.state = logs
+        # Episode boundary
+        if self.current_step >= self.max_steps:
+            self.done = True
 
-        return self.state, reward, self.done, {}
+        self._state = logs
+
+        return self._state, reward, self.done, {}
 
     def state(self):
-        return self.state
+        return self._state
 
     def action_space(self):
         return [

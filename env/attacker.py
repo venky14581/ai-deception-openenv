@@ -33,7 +33,23 @@ def credential_stuffing():
         )
 
 
+# ---------------- SQL Injection ----------------
+
+def sql_injection():
+    requests.get(f"{TARGET}/sql")
+
+
+# ---------------- Directory Traversal ----------------
+
+def directory_traversal():
+    requests.get(f"{TARGET}/download")
+
+
+# ---------------- Full Attack Simulation ----------------
+
 def simulate_attack():
     brute_force()
     port_scan()
     credential_stuffing()
+    sql_injection()
+    directory_traversal()

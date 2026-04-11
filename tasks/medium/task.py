@@ -1,12 +1,13 @@
 from env.env import DeceptionEnv
 from env.attacker import brute_force
 
-def run():
 
-    brute_force()
+def run():
 
     env = DeceptionEnv()
     env.reset()
+
+    brute_force()
 
     total_reward = 0
 

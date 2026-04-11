@@ -60,6 +60,42 @@ def scan():
     return jsonify({"status": "scan detected"})
 
 
+# ---------------- SQL Injection Attack ----------------
+
+@app.route("/sql")
+def sql():
+    ip = request.remote_addr
+
+    logs["requests"].append({
+        "ip": ip,
+        "type": "sql_injection",
+        "time": time.time()
+    })
+
+    if ip not in logs["suspicious_ips"]:
+        logs["suspicious_ips"].append(ip)
+
+    return jsonify({"status": "sql injection detected"})
+
+
+# ---------------- Directory Traversal ----------------
+
+@app.route("/download")
+def download():
+    ip = request.remote_addr
+
+    logs["requests"].append({
+        "ip": ip,
+        "type": "directory_traversal",
+        "time": time.time()
+    })
+
+    if ip not in logs["suspicious_ips"]:
+        logs["suspicious_ips"].append(ip)
+
+    return jsonify({"status": "directory traversal attempt"})
+
+
 # Common scan endpoints
 
 @app.route("/admin")
@@ -95,7 +131,8 @@ def state():
         "failed_logins": logs["failed_logins"],
         "port_scans": logs["port_scans"],
         "suspicious_ips": logs["suspicious_ips"],
-        "total_requests": len(logs["requests"])
+        "total_requests": len(logs["requests"]),
+        "attack_types": [r["type"] for r in logs["requests"]]
     })
 
 
@@ -104,18 +141,21 @@ def state():
 @app.route("/reset", methods=["GET", "POST"])
 def reset():
     global logs
+
     logs = {
         "failed_logins": 0,
         "port_scans": 0,
         "suspicious_ips": [],
         "requests": []
     }
+
     return jsonify({
         "status": "reset",
         "success": True
     }), 200
 
-# ---------------- Step API (IMPORTANT) ----------------
+
+# ---------------- Step API ----------------
 
 @app.route("/step", methods=["GET", "POST"])
 def step():
@@ -128,17 +168,15 @@ def step():
 
     reward = 0.0
     done = False
-    # Detect brute force
+
     if action == "detect_bruteforce":
         if logs["failed_logins"] > 3:
             reward = 0.4
 
-    # Detect port scan
     elif action == "detect_portscan":
         if logs["port_scans"] > 0:
             reward = 0.3
 
-    # Mitigation step
     elif action == "mitigate_attack":
         if len(logs["suspicious_ips"]) > 0:
             reward = 1.0
@@ -152,6 +190,13 @@ def step():
     })
 
 
+# ---------------- Health Check ----------------
+
+@app.route("/health")
+def health():
+    return jsonify({"status": "ok"})
+
+
 # ---------------- Status ----------------
 
 @app.route("/status")
@@ -161,7 +206,9 @@ def status():
         "attacks": [
             "brute_force",
             "port_scan",
-            "credential_stuffing"
+            "credential_stuffing",
+            "sql_injection",
+            "directory_traversal"
         ],
         "status": "running"
     })
