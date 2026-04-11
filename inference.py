@@ -36,7 +36,7 @@ def choose_action(client, state):
                 }
             ],
             max_tokens=10,
-            temperature=0.0
+            temperature=0.3
         )
 
         action = response.choices[0].message.content.strip()
