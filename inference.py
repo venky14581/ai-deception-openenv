@@ -1,4 +1,4 @@
-kimport time
+import time
 import os
 import random
 import traceback
