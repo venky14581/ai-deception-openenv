@@ -45,6 +45,20 @@ class DeceptionEnv:
                     reward += 0.2
                     break
 
+        # Detect SQL injection
+        if action == "detect_attack":
+            for r in requests_log:
+                if isinstance(r, dict) and r.get("type") == "sql_injection":
+                    reward += 0.2
+                    break
+
+        # Detect directory traversal
+        if action == "detect_attack":
+            for r in requests_log:
+                if isinstance(r, dict) and r.get("type") == "directory_traversal":
+                    reward += 0.2
+                    break
+
         # Deploy honeypot
         elif action == "deploy_honeypot":
             deploy_honeypot()
