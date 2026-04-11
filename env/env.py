@@ -12,10 +12,14 @@ class DeceptionEnv:
         self.done = False
         self.max_steps = 5
         self.current_step = 0
+        self.detected = False
+        self.deployed = False
 
     def reset(self):
         self.done = False
         self.current_step = 0
+        self.detected = False
+        self.deployed = False
 
         logs = requests.get(f"{SERVER}/logs").json()
         self._state = logs
@@ -32,57 +36,75 @@ class DeceptionEnv:
         failed_logins = logs.get("failed_logins", 0)
         requests_log = logs.get("requests", [])
 
-        # Detect brute force
+        # ---------------- Detect Attack ----------------
         if action == "detect_attack":
+
+            detected_any = False
+
+            # Detect brute force
             if failed_logins > 3:
                 reward += 0.15
-            else:
-                reward -= 0.05
+                detected_any = True
 
-        # Detect port scan
-        if action == "detect_attack":
+            # Detect port scan
             for r in requests_log:
                 if isinstance(r, dict) and r.get("type") == "port_scan":
                     reward += 0.15
+                    detected_any = True
                     break
 
-        # Detect SQL injection
-        if action == "detect_attack":
+            # Detect SQL injection
             for r in requests_log:
                 if isinstance(r, dict) and r.get("type") == "sql_injection":
                     reward += 0.15
+                    detected_any = True
                     break
 
-        # Detect directory traversal
-        if action == "detect_attack":
+            # Detect directory traversal
             for r in requests_log:
                 if isinstance(r, dict) and r.get("type") == "directory_traversal":
                     reward += 0.15
+                    detected_any = True
                     break
 
-        # Deploy honeypot
+            if detected_any:
+                self.detected = True
+            else:
+                reward -= 0.05
+
+        # ---------------- Deploy Honeypot ----------------
         elif action == "deploy_honeypot":
             deploy_honeypot()
             reward += 0.30
+            self.deployed = True
 
-        # Fake database
+        # ---------------- Fake Database ----------------
         elif action == "fake_database":
             fake_database()
             reward += 0.20
+            self.deployed = True
 
-        # Block attacker (multi attacker support)
+        # ---------------- Block Attacker ----------------
         elif action == "block_ip":
-            if logs.get("suspicious_ips"):
-                ip = logs["suspicious_ips"][-1]   # latest attacker
+
+            # Require detection + deception first
+            if logs.get("suspicious_ips") and self.detected and self.deployed:
+
+                ip = logs["suspicious_ips"][-1]
                 block_attacker(ip)
+
                 reward += 0.50
                 self.done = True
 
-        # Episode boundary
+            else:
+                # penalize early blocking
+                reward -= 0.10
+
+        # ---------------- Episode Boundary ----------------
         if self.current_step >= self.max_steps:
             self.done = True
 
-        # Clamp reward
+        # ---------------- Clamp reward ----------------
         reward = min(max(reward, 0.0), 1.0)
 
         self._state = logs
