@@ -1,3 +1,4 @@
+import threading
 import time
 import os
 import random
@@ -6,6 +7,9 @@ from openai import OpenAI
 
 random.seed(42)
 
+from env.fake_server import run_server
+threading.Thread(target=run_server, daemon=True).start()
+time.sleep(2)
 from env.env import DeceptionEnv
 from env.attacker import simulate_attack
 
