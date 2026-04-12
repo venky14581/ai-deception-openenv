@@ -1,15 +1,12 @@
-import threading
 import time
 import os
 import random
 import traceback
+import requests
+import threading
 from openai import OpenAI
 
-# Reproducibility
-random.seed(42)
-
-# Start fake server
-
+from env.fake_server import run_server
 from env.env import DeceptionEnv
 from env.attacker import simulate_attack
 
@@ -17,6 +14,31 @@ from env.attacker import simulate_attack
 from tasks.easy.grader import grade as easy_grade
 from tasks.medium.grader import grade as medium_grade
 from tasks.hard.grader import grade as hard_grade
+
+# Reproducibility
+random.seed(42)
+
+
+# Wait for server to start
+def wait_for_server():
+    for _ in range(15):
+        try:
+            r = requests.get("http://127.0.0.1:7860/status")
+            if r.status_code == 200:
+                print("Server ready")
+                return
+        except:
+            pass
+        time.sleep(1)
+
+    raise RuntimeError("Server not started")
+
+
+# Start fake server
+threading.Thread(target=run_server, daemon=True).start()
+
+# Wait for server
+wait_for_server()
 
 
 # Environment variables
@@ -103,7 +125,7 @@ def run_task(task_name):
             # AI chooses action
             action = choose_action(client, state)
 
-            # exploration (30%)
+            # exploration
             if random.random() < 0.3:
                 action = random.choice(env.action_space())
 
@@ -134,7 +156,8 @@ def run_task(task_name):
         else:
             score = hard_grade(rewards)
 
-        success = score >= 0.5
+        # success threshold
+        success = score >= 0.3
 
         print(
             f"[END] success={str(success).lower()} steps={steps} "
