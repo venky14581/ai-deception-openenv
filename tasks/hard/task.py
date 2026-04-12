@@ -1,3 +1,5 @@
+import random
+random.seed(42)
 from env.env import DeceptionEnv
 from env.attacker import brute_force, port_scan, credential_stuffing
 
