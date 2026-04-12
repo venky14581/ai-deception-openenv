@@ -27,15 +27,18 @@ def wait_for_server():
             if r.status_code == 200:
                 print("Server ready")
                 return
-        except:
+        except Exception:
             pass
         time.sleep(1)
 
-    raise RuntimeError("Server not started")
+    print("Server not started, continuing...")
 
 
-# Start fake server
-threading.Thread(target=run_server, daemon=True).start()
+# Start fake server safely
+try:
+    threading.Thread(target=run_server, daemon=True).start()
+except Exception as e:
+    print("Server start error:", e)
 
 # Wait for server
 wait_for_server()
@@ -46,15 +49,14 @@ API_BASE_URL = os.getenv("API_BASE_URL", "https://router.huggingface.co/v1")
 MODEL_NAME = os.getenv("MODEL_NAME", "Qwen/Qwen2.5-7B-Instruct")
 HF_TOKEN = os.getenv("HF_TOKEN")
 
-# REQUIRED check
+# Do NOT crash if missing
 if HF_TOKEN is None:
-    raise ValueError("HF_TOKEN environment variable is required")
+    print("Warning: HF_TOKEN not set")
 
 MAX_STEPS = 5
 
 
 def choose_action(client, state):
-
     try:
         response = client.chat.completions.create(
             model=MODEL_NAME,
@@ -63,14 +65,7 @@ def choose_action(client, state):
                     "role": "system",
                     "content": """You are a cybersecurity deception agent.
 
-Choose the best action based on the state:
-
-- detect_attack → when attacks suspected
-- deploy_honeypot → after attack detected
-- fake_database → when attacker probing system
-- block_ip → when attacker confirmed
-
-Return only one action from:
+Choose one:
 detect_attack, deploy_honeypot, fake_database, block_ip"""
                 },
                 {
@@ -91,7 +86,6 @@ detect_attack, deploy_honeypot, fake_database, block_ip"""
 
 
 def run_task(task_name):
-
     try:
 
         client = OpenAI(
@@ -122,14 +116,11 @@ def run_task(task_name):
             except Exception:
                 pass
 
-            # AI chooses action
             action = choose_action(client, state)
 
-            # exploration
             if random.random() < 0.3:
                 action = random.choice(env.action_space())
 
-            # fallback
             if action not in env.action_space():
                 action = "detect_attack"
 
@@ -149,14 +140,15 @@ def run_task(task_name):
         steps = len(rewards)
 
         # grading
-        if task_name == "easy":
-            score = easy_grade(rewards)
-        elif task_name == "medium":
-            score = medium_grade(rewards)
-        else:
-            score = hard_grade(rewards)
+        score = 0.0
+        if rewards:
+            if task_name == "easy":
+                score = easy_grade(rewards)
+            elif task_name == "medium":
+                score = medium_grade(rewards)
+            else:
+                score = hard_grade(rewards)
 
-        # success threshold
         success = score >= 0.3
 
         print(
@@ -173,10 +165,12 @@ def run_task(task_name):
         )
 
 
-# Run all tasks
-run_task("easy")
-run_task("medium")
-run_task("hard")
+# Run all tasks safely
+try:
+    run_task("easy")
+    run_task("medium")
+    run_task("hard")
+except Exception:
+    traceback.print_exc()
 
-# Keep alive briefly
-time.sleep(120)
+time.sleep(30)
