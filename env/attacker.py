@@ -103,7 +103,7 @@ def simulate_attack():
         directory_traversal
     ]
 
-    selected = random.sample(attacks, k=3)
+    selected = random.sample(attacks, k=2)
 
     for attack in selected:
         attack()
