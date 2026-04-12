@@ -94,8 +94,16 @@ def directory_traversal():
 
 
 def simulate_attack():
-    brute_force()
-    port_scan()
-    credential_stuffing()
-    sql_injection()
-    directory_traversal()
+
+    attacks = [
+        brute_force,
+        port_scan,
+        credential_stuffing,
+        sql_injection,
+        directory_traversal
+    ]
+
+    selected = random.sample(attacks, k=3)
+
+    for attack in selected:
+        attack()
