@@ -16,6 +16,9 @@ class DeceptionEnv:
         self.deployed = False
 
     def reset(self):
+
+        requests.post(f"{SERVER}/reset")
+
         self.done = False
         self.current_step = 0
         self.detected = False
@@ -41,26 +44,22 @@ class DeceptionEnv:
 
             detected_any = False
 
-            # Detect brute force
             if failed_logins > 3:
                 reward += 0.15
                 detected_any = True
 
-            # Detect port scan
             for r in requests_log:
                 if isinstance(r, dict) and r.get("type") == "port_scan":
                     reward += 0.15
                     detected_any = True
                     break
 
-            # Detect SQL injection
             for r in requests_log:
                 if isinstance(r, dict) and r.get("type") == "sql_injection":
                     reward += 0.15
                     detected_any = True
                     break
 
-            # Detect directory traversal
             for r in requests_log:
                 if isinstance(r, dict) and r.get("type") == "directory_traversal":
                     reward += 0.15
@@ -70,16 +69,18 @@ class DeceptionEnv:
             if detected_any:
                 self.detected = True
             else:
-                reward -= 0.05
+                reward -= 0.10
 
         # ---------------- Deploy Honeypot ----------------
         elif action == "deploy_honeypot":
+
             deploy_honeypot()
             reward += 0.30
             self.deployed = True
 
         # ---------------- Fake Database ----------------
         elif action == "fake_database":
+
             fake_database()
             reward += 0.20
             self.deployed = True
@@ -87,7 +88,6 @@ class DeceptionEnv:
         # ---------------- Block Attacker ----------------
         elif action == "block_ip":
 
-            # Only allow block after detection + deception
             if (
                 logs.get("suspicious_ips")
                 and self.detected
@@ -102,14 +102,12 @@ class DeceptionEnv:
                 self.done = True
 
             else:
-                # Early block penalty
-                reward += 0.05
+                reward -= 0.10
 
         # ---------------- Episode Boundary ----------------
         if self.current_step >= self.max_steps:
             self.done = True
 
-        # ---------------- Clamp reward ----------------
         reward = min(max(reward, 0.0), 1.0)
 
         self._state = logs
