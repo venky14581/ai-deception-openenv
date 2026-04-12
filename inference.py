@@ -5,10 +5,14 @@ import random
 import traceback
 from openai import OpenAI
 
+# Reproducibility
 random.seed(42)
+
+# Start fake server
 from env.fake_server import run_server
 threading.Thread(target=run_server, daemon=True).start()
 time.sleep(2)
+
 from env.env import DeceptionEnv
 from env.attacker import simulate_attack
 
@@ -18,9 +22,16 @@ from tasks.medium.grader import grade as medium_grade
 from tasks.hard.grader import grade as hard_grade
 
 
+# Environment variables
 API_BASE_URL = os.getenv("API_BASE_URL", "https://router.huggingface.co/v1")
 MODEL_NAME = os.getenv("MODEL_NAME", "Qwen/Qwen2.5-7B-Instruct")
 HF_TOKEN = os.getenv("HF_TOKEN")
+
+# REQUIRED check
+if HF_TOKEN is None:
+    raise ValueError("HF_TOKEN environment variable is required")
+
+MAX_STEPS = 5
 
 
 def choose_action(client, state):
@@ -80,7 +91,7 @@ def run_task(task_name):
         rewards = []
         done = False
 
-        for step in range(1, 4):
+        for step in range(1, MAX_STEPS + 1):
 
             try:
                 simulate_attack()
@@ -105,7 +116,6 @@ def run_task(task_name):
 
             state, reward, done, _ = env.step(action)
 
-            reward = min(max(reward, 0.05), 0.95)
             rewards.append(reward)
 
             print(
@@ -138,14 +148,15 @@ def run_task(task_name):
     except Exception:
         traceback.print_exc()
         print(
-            "[END] success=false steps=0 score=0.10 rewards=",
+            "[END] success=false steps=0 score=0.00 rewards=",
             flush=True
         )
 
 
+# Run all tasks
 run_task("easy")
 run_task("medium")
 run_task("hard")
 
 # Keep alive briefly
-time.sleep(180)
+time.sleep(120)
