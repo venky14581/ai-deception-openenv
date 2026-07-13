@@ -28,7 +28,7 @@ The environment follows the **OpenEnv specification** and supports:
 
 Simulate cybersecurity defense in a production-like environment:
 
-- Detect brute force attacks
+- Detect brute force attack
 - Detect port scanning
 - Detect SQL injection
 - Detect directory traversal
